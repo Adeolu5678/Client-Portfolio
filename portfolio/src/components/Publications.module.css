@@ -1,3 +1,25 @@
+/* ── Tab panel entrance animation ──────────────────────────── */
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tabPanel {
+  animation: tabFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Each child item animates with its own delay via inline style */
+.tabPanel > * {
+  opacity: 0;
+  animation: tabFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 .pubs {
   background: var(--surface);
   border-top: 1px solid var(--border-soft);
@@ -130,6 +152,22 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+/* Clickable title for journal articles with DOIs */
+.pubTitleLink {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: var(--parchment);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  display: block;
+}
+.pubTitleLink:hover {
+  color: var(--gold);
 }
 
 .pubTitle {

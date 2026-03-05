@@ -8,7 +8,6 @@ type PubTab = "journals" | "books" | "articles" | "theses";
 
 export default function Publications() {
   const [tab, setTab] = useState<PubTab>("journals");
-  const [expanded, setExpanded] = useState<number | null>(null);
   const ref = useReveal();
 
   const tabs: { key: PubTab; label: string; count: number }[] = [
@@ -19,9 +18,9 @@ export default function Publications() {
   ];
 
   return (
-    <section id="publications" className={`${styles.pubs} section`} ref={ref}>
+    <section id="publications" className={`${styles.pubs} section`} ref={ref as React.Ref<HTMLElement>}>
       <div className="container">
-        {/* Header */}
+        {/* Header — uses useReveal normally (always visible) */}
         <div className={styles.header}>
           <p className="section-label reveal">Scholarly Output</p>
           <h2 className={`section-title reveal reveal-delay-1`}>Publications</h2>
@@ -38,7 +37,7 @@ export default function Publications() {
               role="tab"
               aria-selected={tab === t.key}
               className={`${styles.tabBtn} ${tab === t.key ? styles.tabActive : ""}`}
-              onClick={() => { setTab(t.key); setExpanded(null); }}
+              onClick={() => setTab(t.key)}
             >
               {t.label}
               <span className={styles.tabCount}>{t.count}</span>
@@ -46,21 +45,46 @@ export default function Publications() {
           ))}
         </div>
 
+        {/* ── Tab Panels ─────────────────────────────────────────
+            Key prop forces a remount on tab change so the CSS
+            @keyframes tabFadeIn always replays — no IntersectionObserver needed.
+        ──────────────────────────────────────────────────────── */}
+
         {/* Journals */}
         {tab === "journals" && (
-          <div className={styles.list}>
+          <div key="journals" className={`${styles.list} ${styles.tabPanel}`}>
             {publications.journals.map((j, i) => (
               <article
                 key={i}
-                className={`${styles.pubItem} reveal`}
-                style={{ transitionDelay: `${i * 0.06}s` }}
+                className={styles.pubItem}
+                style={{ animationDelay: `${i * 0.06}s` }}
               >
                 <div className={styles.pubMeta}>
                   <span className={styles.pubYear}>{j.year}</span>
-                  {j.doi && <a href={j.doi} target="_blank" rel="noopener noreferrer" className={styles.doiLink}>DOI ↗</a>}
+                  {j.doi && (
+                    <a
+                      href={j.doi}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.doiLink}
+                    >
+                      DOI ↗
+                    </a>
+                  )}
                 </div>
                 <div className={styles.pubContent}>
-                  <h3 className={styles.pubTitle}>{j.title}</h3>
+                  {j.doi ? (
+                    <a
+                      href={j.doi}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.pubTitleLink}
+                    >
+                      {j.title}
+                    </a>
+                  ) : (
+                    <h3 className={styles.pubTitle}>{j.title}</h3>
+                  )}
                   <p className={styles.pubAuthors}>{j.authors}</p>
                   <p className={styles.pubJournal}>
                     <em>{j.journal}</em>
@@ -75,11 +99,15 @@ export default function Publications() {
 
         {/* Books */}
         {tab === "books" && (
-          <div className={styles.booksGrid}>
+          <div key="books" className={`${styles.booksGrid} ${styles.tabPanel}`}>
             <div className={styles.booksSubgroup}>
               <p className={styles.subgroupLabel}>Sole Author</p>
               {publications.books.map((b, i) => (
-                <article key={i} className={`${styles.bookCard} reveal`} style={{ transitionDelay: `${i * 0.08}s` }}>
+                <article
+                  key={i}
+                  className={styles.bookCard}
+                  style={{ animationDelay: `${i * 0.08}s` }}
+                >
                   <span className={styles.bookYear}>{b.year}</span>
                   <div>
                     <h3 className={styles.bookTitle}>{b.title}</h3>
@@ -91,7 +119,11 @@ export default function Publications() {
             <div className={styles.booksSubgroup}>
               <p className={styles.subgroupLabel}>Co-Authored</p>
               {publications.coAuthored.map((b, i) => (
-                <article key={i} className={`${styles.bookCard} reveal`} style={{ transitionDelay: `${(i + publications.books.length) * 0.08}s` }}>
+                <article
+                  key={i}
+                  className={styles.bookCard}
+                  style={{ animationDelay: `${(i + publications.books.length) * 0.08}s` }}
+                >
                   <span className={styles.bookYear}>{b.year}</span>
                   <div>
                     <h3 className={styles.bookTitle}>{b.title}</h3>
@@ -106,25 +138,30 @@ export default function Publications() {
 
         {/* Articles & Chapters */}
         {tab === "articles" && (
-          <div className={styles.list}>
+          <div key="articles" className={`${styles.list} ${styles.tabPanel}`}>
             {publications.chapters.map((c, i) => (
-              <article key={`ch-${i}`} className={`${styles.pubItem} ${styles.pubItemChap} reveal`} style={{ transitionDelay: `${i * 0.05}s` }}>
+              <article
+                key={`ch-${i}`}
+                className={`${styles.pubItem} ${styles.pubItemChap}`}
+                style={{ animationDelay: `${i * 0.05}s` }}
+              >
                 <div className={styles.pubMeta}>
                   <span className={styles.pubYear}>{c.year}</span>
                   <span className={styles.pubTag}>Chapter</span>
                 </div>
                 <div className={styles.pubContent}>
                   <h3 className={styles.pubTitle}>{c.title}</h3>
-                  <p className={styles.pubJournal}>In <em>{c.book}</em>. {c.editor}. {c.location}: {c.publisher}</p>
+                  <p className={styles.pubJournal}>
+                    In <em>{c.book}</em>. {c.editor}. {c.location}: {c.publisher}
+                  </p>
                 </div>
               </article>
             ))}
             {publications.articles.map((a, i) => (
               <article
                 key={`ar-${i}`}
-                className={`${styles.pubItem} reveal`}
-                style={{ transitionDelay: `${(i + publications.chapters.length) * 0.05}s` }}
-                onClick={() => setExpanded(expanded === i ? null : i)}
+                className={styles.pubItem}
+                style={{ animationDelay: `${(i + publications.chapters.length) * 0.05}s` }}
               >
                 <div className={styles.pubMeta}>
                   <span className={styles.pubYear}>{a.year}</span>
@@ -144,9 +181,13 @@ export default function Publications() {
 
         {/* Theses */}
         {tab === "theses" && (
-          <div className={styles.thesesList}>
+          <div key="theses" className={`${styles.thesesList} ${styles.tabPanel}`}>
             {publications.theses.map((t, i) => (
-              <article key={i} className={`${styles.thesisItem} reveal`} style={{ transitionDelay: `${i * 0.1}s` }}>
+              <article
+                key={i}
+                className={styles.thesisItem}
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
                 <div className={styles.thesisLeft}>
                   <span className={styles.thesisYear}>{t.year}</span>
                   <span className={styles.thesisType}>{t.type}</span>
