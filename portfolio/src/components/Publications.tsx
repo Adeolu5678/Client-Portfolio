@@ -53,7 +53,7 @@ export default function Publications() {
         {/* Journals */}
         {tab === "journals" && (
           <div key="journals" className={`${styles.list} ${styles.tabPanel}`}>
-            {publications.journals.map((j, i) => (
+            {[...publications.journals].sort((a, b) => b.year - a.year).map((j, i) => (
               <article
                 key={i}
                 className={styles.pubItem}
@@ -102,7 +102,7 @@ export default function Publications() {
           <div key="books" className={`${styles.booksGrid} ${styles.tabPanel}`}>
             <div className={styles.booksSubgroup}>
               <p className={styles.subgroupLabel}>Sole Author</p>
-              {publications.books.map((b, i) => (
+              {[...publications.books].sort((a, b) => b.year - a.year).map((b, i) => (
                 <article
                   key={i}
                   className={styles.bookCard}
@@ -118,7 +118,7 @@ export default function Publications() {
             </div>
             <div className={styles.booksSubgroup}>
               <p className={styles.subgroupLabel}>Co-Authored</p>
-              {publications.coAuthored.map((b, i) => (
+              {[...publications.coAuthored].sort((a, b) => b.year - a.year).map((b, i) => (
                 <article
                   key={i}
                   className={styles.bookCard}
@@ -139,7 +139,7 @@ export default function Publications() {
         {/* Articles & Chapters */}
         {tab === "articles" && (
           <div key="articles" className={`${styles.list} ${styles.tabPanel}`}>
-            {publications.chapters.map((c, i) => (
+            {[...publications.chapters].sort((a, b) => b.year - a.year).map((c, i) => (
               <article
                 key={`ch-${i}`}
                 className={`${styles.pubItem} ${styles.pubItemChap}`}
@@ -157,7 +157,7 @@ export default function Publications() {
                 </div>
               </article>
             ))}
-            {publications.articles.map((a, i) => (
+            {[...publications.articles].sort((a, b) => b.year - a.year).map((a, i) => (
               <article
                 key={`ar-${i}`}
                 className={styles.pubItem}
@@ -182,7 +182,7 @@ export default function Publications() {
         {/* Theses */}
         {tab === "theses" && (
           <div key="theses" className={`${styles.thesesList} ${styles.tabPanel}`}>
-            {publications.theses.map((t, i) => (
+            {[...publications.theses].sort((a, b) => b.year - a.year).map((t, i) => (
               <article
                 key={i}
                 className={styles.thesisItem}
